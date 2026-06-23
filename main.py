@@ -100,7 +100,11 @@ def top_urls(db: Session = Depends(get_db)):
 def redirect_url(short_code: str, db: Session = Depends(get_db)):
 
     # Try Redis first
-    cached_url = None  
+    try:
+        cached_url = cache.get(short_code)
+    except Exception as e:
+        print("Redis read failed:", e)
+        cached_url = None
 
     if cached_url:
         db.query(URL).filter(URL.short_code == short_code).update(
