@@ -3,21 +3,28 @@ from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+import os
 import random, string, redis
 from database import get_db, URL
 from hashing import ConsistentHashRing
 
 app = FastAPI()
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Redis connection
-cache = redis.Redis(host='localhost', port=6379, decode_responses=True)
+cache = redis.from_url(
+    os.getenv("REDIS_URL"),
+    decode_responses=True
+)
 
 # Simulate 3 server nodes
 hash_ring = ConsistentHashRing()
